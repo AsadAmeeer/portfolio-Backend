@@ -10,12 +10,13 @@ dotenv.config();
 // Connect to database
 //connectDB();
 let isConnected = false;
-async function connectDB() {
+async function connectToMongoDB() {
     if (isConnected) {
         console.log("Already connected")
+        return;
     }
     try {
-        await mongoose.connect(process.env.MONGO_URI)
+        await mongoose.connect(process.env.MONGODB_URI || process.env.MONGO_URI)
         isConnected = true
         console.log("Connected to MongoDB")
     }
@@ -26,9 +27,9 @@ async function connectDB() {
 const app = express();
 
 // Middleware
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
     if (!isConnected) {
-        connectToMongoDB();
+        await connectToMongoDB();
     }
     next();
 })
